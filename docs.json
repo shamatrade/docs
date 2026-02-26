@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "maple",
   "name": "shama.trade",
   "colors": {
     "primary": "#EAB308",
@@ -8,54 +8,33 @@
     "dark": "#CA8A04"
   },
   "favicon": "/favicon.svg",
+  "icons": {
+    "library": "lucide"
+  },
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Overview",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": [
-              "index"
-            ]
-          },
-          {
-            "group": "Platform",
-            "pages": [
-              "platform/how-it-works",
-              "platform/pool-page"
-            ]
-          }
+        "group": "Platform",
+        "pages": [
+          "index",
+          "platform/how-it-works",
+          "platform/pool-page"
         ]
       },
       {
-        "tab": "Smart Contracts",
-        "groups": [
-          {
-            "group": "Token",
-            "pages": [
-              "contracts/shama-token"
-            ]
-          },
-          {
-            "group": "Pool Contracts",
-            "pages": [
-              "contracts/token-sale",
-              "contracts/dual-staking"
-            ]
-          },
-          {
-            "group": "Uniswap Integration",
-            "pages": [
-              "contracts/sell-fee-hook"
-            ]
-          },
-          {
-            "group": "Deployments",
-            "pages": [
-              "contracts/deployments"
-            ]
-          }
+        "group": "Pool Contracts",
+        "pages": [
+          "contracts/shama-token",
+          "contracts/token-sale",
+          "contracts/dual-staking",
+          "contracts/sell-fee-hook"
+        ]
+      },
+      {
+        "group": "Deployments",
+        "pages": [
+          "contracts/sepolia",
+          "contracts/base"
         ]
       }
     ],
