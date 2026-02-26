@@ -4,6 +4,10 @@ description: "A Uniswap V4 hook that applies a 5% fee on SHAMA token sells to re
 icon: "shield"
 ---
 
+<Card title="SellFeeHook.sol" icon="github" href="https://github.com/shamatrade/contracts/blob/main/contracts/SellFeeHook.sol">
+  View source on GitHub
+</Card>
+
 `SellFeeHook` is a `beforeSwap` hook for Uniswap V4. When a user swaps SHAMA for another token (i.e. sells SHAMA), the hook takes 5% of the input SHAMA amount and sends it to a configurable `feeRecipient`. Buy-side swaps (acquiring SHAMA) are not affected.
 
 ## How It Works
