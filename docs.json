@@ -1,68 +1,59 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "shama.trade",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#EAB308",
+    "light": "#FACC15",
+    "dark": "#CA8A04"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Overview",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "index"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Platform",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "platform/how-it-works",
+              "platform/pool-page"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Smart Contracts",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Token",
             "pages": [
-              "api-reference/introduction"
+              "contracts/shama-token"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Pool Contracts",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "contracts/token-sale",
+              "contracts/dual-staking"
+            ]
+          },
+          {
+            "group": "Uniswap Integration",
+            "pages": [
+              "contracts/sell-fee-hook"
+            ]
+          },
+          {
+            "group": "Deployments",
+            "pages": [
+              "contracts/deployments"
             ]
           }
         ]
@@ -71,14 +62,9 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Launch App",
+          "href": "https://shama.trade",
+          "icon": "rocket"
         }
       ]
     }
@@ -90,33 +76,17 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "shama.trade",
+        "href": "https://shama.trade"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/shamatrade",
+      "github": "https://github.com/shamatrade",
+      "telegram": "https://t.me/shamaprotocol",
+      "youtube": "https://youtube.com/@shamatrade"
     }
   }
 }

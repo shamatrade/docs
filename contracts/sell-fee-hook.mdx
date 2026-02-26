@@ -1,0 +1,82 @@
+---
+title: "SellFeeHook"
+description: "A Uniswap V4 hook that applies a 5% fee on SHAMA token sells to reduce short-term dumping pressure."
+---
+
+`SellFeeHook` is a `beforeSwap` hook for Uniswap V4. When a user swaps SHAMA for another token (i.e. sells SHAMA), the hook takes 5% of the input SHAMA amount and sends it to a configurable `feeRecipient`. Buy-side swaps (acquiring SHAMA) are not affected.
+
+## How It Works
+
+1. A user initiates a swap on a Uniswap V4 pool that includes SHAMA as one of the pair tokens
+2. The `beforeSwap` hook fires and checks whether SHAMA is being **sold** (used as input)
+3. If yes and the hook is enabled:
+   - Calculates `feeAmount = inputAmount * 500 / 10000` (5%)
+   - Calls `poolManager.take()` to extract the fee in SHAMA and send it to `feeRecipient`
+   - Returns a `BeforeSwapDelta` that reduces the effective input amount, so the swap proceeds with 95% of the original amount
+4. If SHAMA is being **bought** or the hook is disabled, the swap proceeds normally with no fee
+
+## Constructor
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `_poolManager` | `IPoolManager` | Uniswap V4 PoolManager address |
+| `_shamaToken` | `address` | SHAMA token contract |
+| `_feeRecipient` | `address` | Address that receives the 5% sell fee |
+| `_owner` | `address` | Admin/owner address |
+
+## Constants
+
+| Name | Value | Description |
+|------|-------|-------------|
+| `FEE_BPS` | `500` | Fee in basis points (5%) |
+
+## Admin Functions
+
+### `setFeeRecipient(address _feeRecipient)`
+
+Update the address that receives sell fees. Cannot be the zero address.
+
+### `setEnabled(bool _enabled)`
+
+Toggle the hook on or off. When disabled, all swaps proceed without any fee. Useful for temporarily disabling the fee during liquidity events or promotions.
+
+## State
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `SHAMA_TOKEN` | `address` (immutable) | The SHAMA token address |
+| `feeRecipient` | `address` | Current fee recipient |
+| `FEE_BPS` | `uint256` (constant) | 500 (5%) |
+| `enabled` | `bool` | Whether the hook is active |
+
+## Hook Permissions
+
+The hook only requires two permissions from the Uniswap V4 framework:
+
+| Permission | Value |
+|------------|-------|
+| `beforeSwap` | `true` |
+| `beforeSwapReturnDelta` | `true` |
+
+All other hook permissions (`afterSwap`, liquidity hooks, etc.) are `false`.
+
+## Events
+
+| Event | Emitted When |
+|-------|-------------|
+| `FeeRecipientUpdated(oldRecipient, newRecipient)` | Fee recipient address changed |
+| `FeeTaken(amount)` | Sell fee deducted from a swap |
+| `HookToggled(enabled)` | Hook enabled or disabled |
+
+## Integration Notes
+
+- The hook must be deployed at an address that satisfies Uniswap V4's hook address validation (the address encodes which hook functions are active via specific bit flags)
+- The hook works regardless of whether SHAMA is `currency0` or `currency1` in the pool pair
+- The fee is taken from the **input** side of the swap. The seller receives the output amount corresponding to 95% of their intended sell
+- The `feeRecipient` could be a treasury, a burn address, or a reward distributor depending on the ecosystem design
+
+## Security
+
+- **Ownable** — only the owner can change the fee recipient or toggle the hook
+- The fee is a fixed 5% — not configurable at runtime to prevent manipulation
+- The hook cannot block swaps — it can only take a fee or pass through

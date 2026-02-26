@@ -1,0 +1,167 @@
+---
+title: "ShamaTokenSale"
+description: "Pool-specific token sale contract — buy SHAMA with USDT during a timed sale window, then claim or buy-and-stake."
+---
+
+Each of the 10 SHAMA pools deploys its own `ShamaTokenSale` instance with unique pricing, timing, and cap parameters. The contract:
+
+1. Accepts USDT payments during a configurable sale window
+2. Allocates SHAMA tokens to buyers (held in the contract until claim)
+3. Supports `earlyBuyAndStake` — purchase and immediately stake in the paired `ShamaDualStaking` contract
+4. Lets the admin withdraw proceeds and unsold tokens after the sale ends
+
+## Constructor
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `initialOwner` | `address` | Admin/owner address |
+| `_shamaToken` | `address` | SHAMA token contract |
+| `_usdtToken` | `address` | USDT token contract |
+| `_stakingContract` | `address` | Paired `ShamaDualStaking` contract for early staking |
+| `_config` | `SaleConfig` | Sale parameters (see below) |
+
+### SaleConfig
+
+```solidity
+struct SaleConfig {
+    uint256 price;            // USDT (6 decimals) per 1 SHAMA (18 decimals)
+    uint256 startTime;        // Unix timestamp — sale opens
+    uint256 endTime;          // Unix timestamp — sale closes
+    uint256 maxTokensForSale; // Hard cap in SHAMA base units (0 = no cap)
+}
+```
+
+**Price examples:**
+
+| price value | USDT per SHAMA |
+|-------------|----------------|
+| `100_000` | $0.10 |
+| `1_000_000` | $1.00 |
+| `5_000_000` | $5.00 |
+| `300_000_000` | $300.00 |
+
+**Formula:** `shamaOut = (usdtIn * 1e18) / price`
+
+## User Functions
+
+### `buy(uint256 usdtAmount, address recipient)`
+
+Purchase SHAMA tokens with USDT. Tokens are held in the contract and become claimable after the sale ends.
+
+- Requires USDT approval for the sale contract
+- `recipient` receives the claim rights (can differ from `msg.sender`)
+- Reverts if sale hasn't started, has ended, or cap is exceeded
+
+### `claim(address recipient)`
+
+Claim purchased tokens after the sale ends.
+
+- Only callable after `endTime` or when the cap is fully sold
+- `msg.sender` must have unclaimed tokens
+- `recipient` receives the SHAMA tokens
+
+### `earlyBuyAndStake(uint256 usdtAmount, address recipient)`
+
+Purchase and immediately stake in the paired staking contract in one transaction.
+
+- Same purchase logic as `buy`, but tokens go directly to the staking contract
+- The staking contract's `earlyStake` is called on behalf of `recipient`
+- Useful for buyers who want to start earning rewards immediately
+
+## Admin Functions
+
+| Function | Description |
+|----------|-------------|
+| `depositTokens(amount)` | Fund the contract with SHAMA inventory before the sale |
+| `withdrawProceeds(to)` | Withdraw all USDT raised (only after sale ends) |
+| `withdrawUnsoldTokens(to)` | Withdraw unsold SHAMA, preserving unclaimed buyer tokens |
+| `updateConfig(config)` | Update sale config (price/times cannot change mid-sale) |
+| `setStakingContract(addr)` | Update the paired staking contract address |
+| `recoverERC20(token, to)` | Emergency sweep — unlocks 180 days after sale ends |
+| `recoverETH(to)` | Emergency ETH sweep — same 180-day delay |
+
+## View Functions
+
+| Function | Returns |
+|----------|---------|
+| `shamaForUsdt(usdtAmount)` | SHAMA tokens a buyer would receive for a given USDT amount |
+| `usdtForShama(shamaAmount)` | USDT needed to purchase an exact SHAMA amount |
+| `isSaleActive()` | Whether the sale is currently open for purchases |
+| `usdtBalanceOf(user)` | User's USDT balance (convenience wrapper) |
+
+## Buyer Enumeration
+
+| Function | Description |
+|----------|-------------|
+| `buyerCount()` | Total number of unique buyers |
+| `buyerAt(index)` | Buyer address at a given index |
+| `getBuyers(offset, limit)` | Paginated list of buyer addresses |
+| `getBuyerInfos(offset, limit)` | Paginated list of `BuyerSnapshot` structs |
+
+```solidity
+struct BuyerSnapshot {
+    address buyer;
+    uint256 totalPurchased; // Cumulative SHAMA purchased (never decremented)
+    uint256 unclaimed;      // SHAMA still claimable
+}
+```
+
+## State Variables
+
+| Variable | Description |
+|----------|-------------|
+| `totalUsdtRaised` | Cumulative USDT collected |
+| `totalShamaSold` | Cumulative SHAMA allocated to buyers |
+| `totalShamaClaimed` | Cumulative SHAMA claimed or early-staked |
+| `purchases[addr]` | Unclaimed SHAMA balance per buyer |
+| `totalPurchased[addr]` | Lifetime SHAMA purchased per buyer |
+
+## Integration
+
+### Buying Tokens
+
+```typescript
+// 1. Approve USDT spend
+await usdt.approve(saleContract.address, usdtAmount);
+
+// 2a. Buy and claim later
+await saleContract.buy(usdtAmount, buyerAddress);
+
+// 2b. Or buy and stake immediately
+await saleContract.earlyBuyAndStake(usdtAmount, buyerAddress);
+
+// 3. After sale ends, claim tokens
+await saleContract.claim(recipientAddress);
+```
+
+### Admin Setup
+
+```typescript
+// 1. Deploy sale contract with config
+// 2. Transfer SHAMA inventory to the sale contract
+await shamaToken.approve(saleContract.address, inventoryAmount);
+await saleContract.depositTokens(inventoryAmount);
+
+// 3. After sale ends, withdraw proceeds
+await saleContract.withdrawProceeds(treasuryAddress);
+```
+
+## Events
+
+| Event | Emitted When |
+|-------|-------------|
+| `TokensPurchased(buyer, recipient, usdtPaid, shamaAllocated)` | Tokens purchased via `buy` |
+| `TokensPurchasedAndStaked(buyer, recipient, usdtPaid, shamaStaked)` | Tokens purchased via `earlyBuyAndStake` |
+| `TokensClaimed(claimer, recipient, shamaAmount)` | Tokens claimed after sale ends |
+| `SaleConfigUpdated(oldConfig, newConfig)` | Sale config changed |
+| `TokensDeposited(depositor, amount)` | SHAMA deposited by admin |
+| `ProceedsWithdrawn(to, usdtAmount)` | USDT proceeds withdrawn |
+| `UnsoldTokensWithdrawn(to, shamaAmount)` | Unsold tokens recovered |
+
+## Security
+
+- **ReentrancyGuard** on all user-facing functions
+- **SafeERC20** for all token transfers
+- Price and timing are locked during an active sale to protect buyers
+- Emergency recovery functions have a **180-day delay** after sale end
+- Cap enforcement prevents over-selling

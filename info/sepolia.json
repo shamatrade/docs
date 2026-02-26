@@ -1,0 +1,42 @@
+{
+  "pool-1": {
+    "staking": "0xEdde68475197b73c3A6bF7c0CA2E10eaB32A70C4",
+    "tokenSale": "0x5Eead9FdcBE91711DffCd96deDc947eF16449d48"
+  },
+  "pool-2": {
+    "staking": "0xD46D263135922a29Cc170E4524b29aff40a4D27f",
+    "tokenSale": "0xc0635d3C746eE96952C082ca3Bd617a978400210"
+  },
+  "pool-3": {
+    "staking": "0x6a554d6577eC3CB0786109AC26a9478Fde82AF91",
+    "tokenSale": "0x3ED50760656A4323C021441094A9049e8d47bA46"
+  },
+  "pool-4": {
+    "staking": "0x8736002577826C4709524d01Da2647b75c0723FF",
+    "tokenSale": "0x24d11Bb9711D2eB8f37c3903165b0FEBD83Da69D"
+  },
+  "pool-5": {
+    "staking": "0xe479CcAaa16aE55099F1E3C2DCCb20DCB3b9539A",
+    "tokenSale": "0x1537BF4A6203A45E6751D6dab3016f05d87748B5"
+  },
+  "pool-6": {
+    "staking": "0x87b277B36097b7b589480B1424c213D3cb34dc78",
+    "tokenSale": "0xF7B97f798C807411989736d346bb03Bebaf45De8"
+  },
+  "pool-7": {
+    "staking": "0x5BCca784fE6B5F65fF018A870B70fb25Db069E25",
+    "tokenSale": "0x27F4b05F79F4dF505DF605b43c901ab47489B8C3"
+  },
+  "pool-8": {
+    "staking": "0xf39921E83aC93e6c278fBa424624f9F2D8B61fe7",
+    "tokenSale": "0x9a6C87Bf9c0A99021A12902d2799f8002D0DDFc4"
+  },
+  "pool-9": {
+    "staking": "0xFBdEfa68890AED7c14781dAd03C86167C30bf19C",
+    "tokenSale": "0x227D7feBE8c6Ee83eeb69659d349db904E39c06C"
+  },
+  "pool-10": {
+    "staking": "0x82cCfeEFBAD819Df53c5c39924F1B67307B80953",
+    "tokenSale": "0x7e778A0659A001Fa0a99E4387F9773eE8EdaA802"
+  }
+}

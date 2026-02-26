@@ -1,0 +1,38 @@
+---
+title: "ShamaToken"
+description: "The core ERC-20 token for the SHAMA ecosystem — fixed supply, no admin functions."
+---
+
+`Shama` is a standard OpenZeppelin ERC-20 token with a fixed supply of **210,000 SHAMA** minted at deployment. There is no mint function — the supply is permanently capped.
+
+## Token Details
+
+| Property | Value |
+|----------|-------|
+| Name | Shawarma |
+| Symbol | SHAMA |
+| Decimals | 18 |
+| Total Supply | 210,000 (`210_000 * 10^18` base units) |
+
+## Constructor
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `to` | `address` | Receives the entire 210,000 SHAMA supply on deployment |
+
+## Supply Allocation
+
+| Category | Tokens | % |
+|----------|--------|---|
+| Pool Sales (1–10) | 95,000 | 45.2% |
+| CEX Reserve | 70,000 | 33.4% |
+| Expansion Vault | 45,000 | 21.4% |
+
+Within each pool, tokens are split between sale inventory, DEX liquidity, staking rewards, and team locks.
+
+## Integration Notes
+
+- Standard ERC-20 — compatible with any wallet, DEX, or DeFi protocol
+- No admin functions, no pause, no blocklist. Once deployed, the token operates without owner intervention
+- The deployer address receives all tokens and is responsible for distributing them to sale contracts, staking contracts, liquidity pools, and reserves
+- Uses 18 decimals. When interacting with USDT (6 decimals) in sale or staking contracts, be mindful of the decimal difference

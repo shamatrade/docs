@@ -1,0 +1,218 @@
+---
+title: "Pool Page"
+description: "User guide for the pool page — buying tokens, staking, claiming rewards, and tracking pool activity."
+---
+
+The Pool page is the main interface for interacting with a SHAMA pool. From here you can buy tokens, stake, claim rewards, and track pool activity.
+
+## Page Layout
+
+The page uses a two-column layout on desktop (single column on mobile):
+
+- **Left column** — Pool sale information and content tabs (Activity, Stats, Chat, Leaderboard, Shops)
+- **Right column** — Contribute panel (buy tokens) and Staking panel (stake, unstake, claim)
+
+## Header
+
+### Breadcrumb and Title
+
+The header spans the full width with a gradient background. It shows:
+
+- **Breadcrumb** — "Pools / 0x6a2c…c9D9" (the contract address is copyable)
+- **Pool name** — e.g. "Pool 1 Yield Pool"
+- **Copy button** — copies the staking contract address
+- **Explorer link** — opens the contract on Basescan
+- **YouTube button** — shown when pool status is `building`, links to shop progress videos
+
+### Stats Bar
+
+| Stat | Example | Description |
+|------|---------|-------------|
+| **Price** | $5 | USDT price per SHAMA token |
+| **USDT Yields** | $4,500 | Total USDT reward allocation |
+| **SHAMA Yields** | 6,000 SHAMA | SHAMA tokens allocated to the reward pool |
+| **Max Total Stakes** | 20,000 SHAMA | Maximum staking capacity |
+
+A shop counter appears to the right showing the number of shops assigned to this pool.
+
+---
+
+## Buying Tokens
+
+<img src="/images/buy-tokens.png" alt="Buy Tokens" />
+
+The Contribute panel in the sidebar handles token purchases. It is only interactive during the sale window.
+
+### Countdown Timer
+
+A 4-segment countdown (Days, Hours, Min, Sec) shows:
+
+| State | Label | Counting down to |
+|-------|-------|-----------------|
+| Before sale | "Sale starts in" | Sale start time |
+| During sale | "Sale ends in" | Sale end time |
+| After sale | Hidden | — |
+
+### Buy Modes
+
+<Tabs>
+  <Tab title="Buy and Stake">
+    Calls `earlyBuyAndStake()` — purchases SHAMA with USDT and immediately stakes in the dual staking contract. Tokens start earning rewards right away.
+  </Tab>
+  <Tab title="Buy SHAMA">
+    Calls `buy()` — purchases SHAMA with USDT. Tokens are held in the sale contract and become claimable after the sale ends.
+  </Tab>
+</Tabs>
+
+### Amount Input
+
+- Enter a USDT amount or use the **MAX** button to fill your full wallet balance
+- Quick-select buttons: **25%**, **50%**, **75%**, **100%** of your wallet balance
+
+### Info Rows
+
+| Row | Description |
+|-----|-------------|
+| **Wallet balance** | Your connected wallet's USDT balance |
+| **Your Allocation** | Cumulative SHAMA purchased across all transactions |
+| **Your Unclaimed SHAMA** | Tokens available to claim after the sale ends |
+
+### Action Button States
+
+| Condition | Button |
+|-----------|--------|
+| Wallet not connected | **Connect Wallet** |
+| USDT not approved | **Approve USDT** |
+| Sale not started | **Sale has not started** (disabled) |
+| Sale active | **Contribute USDT** |
+| Sale ended, unclaimed tokens | **Claim SHAMA** |
+| Sale ended, all claimed | "All tokens have been claimed" |
+
+### Claiming Tokens
+
+<img src="/images/claim-shama.png" alt="Claim SHAMA" />
+
+After the sale ends, the buy form is replaced with a claim card showing your **Claimable SHAMA** amount and a **Claim SHAMA** button.
+
+---
+
+## Staking
+
+<img src="/images/stake-tokens.png" alt="Stake Tokens" />
+
+The Staking panel in the sidebar handles staking, unstaking, and reward claims through four tabs.
+
+### Stake
+
+Deposit SHAMA tokens to start earning dual rewards.
+
+1. Connect your wallet
+2. Approve SHAMA spend for the staking contract (if needed)
+3. Enter an amount or use the percentage buttons (25%, 50%, 75%, 100%)
+4. Click **Deposit SHAMA**
+
+### Unstake
+
+<img src="/images/unstake-tokens.png" alt="Unstake Tokens" />
+
+Withdraw your entire staked position plus all accrued rewards. Unstaking withdraws the full staked amount — there is no partial unstake.
+
+<Warning>
+Unstaking is subject to the minimum staking period. If the period hasn't elapsed, the transaction will revert.
+</Warning>
+
+### SHAMA Yields
+
+<img src="/images/claim-shama.png" alt="Claim SHAMA Rewards" />
+
+View and claim time-based SHAMA staking rewards. Click **Withdraw SHAMA Rewards** to claim without unstaking.
+
+### USDT Yields
+
+<img src="/images/claim-usdt.png" alt="Claim USDT Rewards" />
+
+View and claim snapshot-based USDT rewards distributed from shop revenue. Click **Withdraw USDT Rewards** to claim without unstaking.
+
+### Staking Stats
+
+Displayed on every staking tab:
+
+| Stat | Description |
+|------|-------------|
+| **TVL** | Total SHAMA staked across all participants |
+| **Total SHAMA Reward Pool** | SHAMA allocated for time-based rewards |
+| **Total USDT Rewards** | USDT distributed to stakers from shop revenue |
+
+---
+
+## Pool Sale Information
+
+A card in the main content area showing the current state of the token sale:
+
+- **Progress** — percentage of tokens sold (`totalShamaClaimed / maxTokensForSale * 100`)
+- **Total Raised** — USDT collected so far
+- **Participants** — number of unique buyers
+
+---
+
+## Content Tabs
+
+### Activity
+
+<img src="/images/activity.png" alt="Activity Tab" />
+
+Financial summary and transaction history for the pool's shops.
+
+**Summary cards:** Total Revenue, Total Expenses, Net P&L
+
+**Transaction list:** Individual shop transactions with date, description, and color-coded amount (green for revenue, red for expenses).
+
+### Stats
+
+<img src="/images/stats.png" alt="Stats Tab" />
+
+Pool configuration and tokenomics:
+
+| Stat | Description |
+|------|-------------|
+| Pool Number | Pool identifier (1–10) |
+| Number of Shops | Shops assigned to this pool |
+| Token Price | USDT price per SHAMA |
+| Max Tokens for Sale | Hard cap on tokens available |
+| Tokens For Liquidity | Reserved for DEX liquidity |
+| Staking Rewards | Allocated to the reward pool |
+| Team Allocation | Reserved for the team |
+
+### Chat
+
+Community chat for pool participants. Requires wallet connection to send messages.
+
+### Leaderboard
+
+Rankings of top stakers and contributors in the pool.
+
+### Shops
+
+<img src="/images/shops.png" alt="Shops Tab" />
+
+Grid of shop cards assigned to this pool. Each card shows:
+
+- Shop name and status badge (e.g. "Scouting Location", "Live")
+- Transaction count and progress bar
+- Revenue, Expenses, and P&L summary
+- Staff count
+
+---
+
+## Wallet Connection
+
+The page adapts based on wallet connection status:
+
+| State | Behavior |
+|-------|----------|
+| **No wallet** | Action buttons show "Connect Wallet" |
+| **Connected, no approval** | Shows "Approve USDT" or "Approve SHAMA" |
+| **Connected, approved** | Shows the actual action button |
+| **Transaction pending** | Button shows loading state |
+| **Transaction confirmed** | Success state, data reloads automatically |
+| **Transaction failed** | Error message displayed |

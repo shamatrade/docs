@@ -1,0 +1,18 @@
+{
+  "$global": {
+    "initialOwner": "0x91F708a8D27F2BCcCe8c00A5f812e59B1A5e48E6",
+    "stakingOwner": "0x355a878757264bBb7F0e8b9A3Abd8D3F298DF826",
+    "shamaTokenAddress": "0x9FB66E44142Cf91Cf44715212474088CeeD17152",
+    "usdtTokenAddress": "0xC435E0747177607772cdF62d85BEB0A219Ac1Cd5"
+  },
+  "ShamaPoolModule": {
+    "price": "34000000",
+    "startTime": 1801353600,
+    "endTime": 1803772800,
+    "maxTokensForSale": "3000000000000000000000",
+    "rewardStartDate": 1803772800,
+    "rewardEndDate": 1824508800,
+    "minStakeAmount": "5000000000000000000",
+    "minStakingPeriod": 15552000
+  }
+}
