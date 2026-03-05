@@ -180,7 +180,7 @@ await stakingContract.setTokenSaleContract(saleContract.address);
 await shamaToken.approve(stakingContract.address, rewardAmount);
 await stakingContract.addRewardPool(rewardAmount);
 
-// 4. Periodically deposit USDT from shop revenue
+// 4. Periodically deposit USDT Yields
 await usdtToken.approve(stakingContract.address, usdtAmount);
 await stakingContract.addUsdtReward(usdtAmount);
 ```
