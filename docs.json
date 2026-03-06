@@ -27,7 +27,8 @@
           "contracts/shama-token",
           "contracts/token-sale",
           "contracts/dual-staking",
-          "contracts/sell-fee-hook"
+          "contracts/sell-fee-hook",
+          "contracts/shama-rsvp-airdrop"
         ]
       },
       {

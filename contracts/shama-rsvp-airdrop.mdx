@@ -1,0 +1,186 @@
+---
+title: "Shamadrop RSVP"
+description: "ERC-721 RSVP pass that entitles holders to claim SHAMA tokens after a 90-day lock period."
+icon: "ticket"
+---
+
+<Card title="ShamaRSVP.sol" icon="github" href="https://github.com/shamatrade/contracts/blob/main/contracts/ShamaRSVP.sol">
+  View source on GitHub
+</Card>
+
+## Overview
+
+The ShamaRSVP airdrop distributes **10,000 SHAMA** tokens across a maximum of **2,000 RSVP passes**. To participate, users mint an ERC-721 RSVP pass for **0.003 ETH** each — a one-time reservation fee that funds the project. Each pass entitles its holder to claim **5 SHAMA** tokens after a **90-day waiting period** from the moment the pass was minted. On a successful claim, the NFT is permanently burned and the SHAMA is transferred directly to the caller's wallet. Passes can be freely transferred, meaning it is the holder at claim time — not necessarily the original minter — who receives the tokens. There is no wallet cap on how many passes a single address can hold or mint, so users who want a larger allocation can mint in bulk using `batchMint`.
+
+Once a pass is claimed it is gone — there is no double-claiming. The contract stores a permanent, on-chain record of every mint and every claim (including burned tokens), giving the ecosystem a single source of truth for full audit history at any time.
+
+---
+
+## Airdrop Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Total SHAMA airdropped | 10,000 SHAMA |
+| Max RSVP passes | 2,000 |
+| SHAMA per pass | 5 SHAMA |
+| Mint price | 0.003 ETH per pass |
+| Claim lock period | 90 days from mint |
+| Claim limit per pass | 1 (NFT is burned on claim) |
+
+---
+
+## How It Works
+
+### 1. Mint a Pass
+
+Call `mint()` to reserve a single RSVP pass, or `batchMint(quantity)` to mint several in one transaction.
+
+- Each pass costs `mintPrice` ETH (default **0.003 ETH**).
+- A maximum of **2,000 passes** can ever exist.
+- One address may hold and mint multiple passes.
+- The pass's mint timestamp is recorded on-chain at the moment of minting — this timestamp starts the 90-day clock.
+
+### 2. Wait 90 Days
+
+After minting, the pass is locked for **90 days**. During this period the pass behaves like a normal ERC-721 token and can be held or transferred. You can check how much time remains before a pass becomes claimable with `timeUntilClaimable(tokenId)`.
+
+### 3. Claim Your SHAMA
+
+Once the 90-day lock has elapsed, call `claimAirdrop(tokenId)`:
+
+- You must be the current holder of the pass at claim time.
+- **5 SHAMA** are transferred to your wallet.
+- The NFT is **burned** — one claim per pass, forever.
+- The claim is recorded permanently on-chain.
+
+<Info>
+If you hold multiple passes, you must call `claimAirdrop` separately for each one. Each pass has its own independent 90-day timer starting from its individual mint timestamp.
+</Info>
+
+---
+
+## User Functions
+
+### `mint()`
+
+Mint a single RSVP pass.
+
+- Requires exactly `mintPrice` ETH.
+- Reverts with `MaxSupplyReached` if all 2,000 passes are taken.
+
+### `batchMint(uint256 quantity)`
+
+Mint multiple passes in a single transaction.
+
+- Requires `quantity × mintPrice` ETH.
+- Reverts with `ZeroQuantity` if `quantity == 0`.
+- Reverts with `ExceedsMaxSupply` if the batch would exceed the 2,000 cap.
+
+### `claimAirdrop(uint256 tokenId)`
+
+Claim the SHAMA reward for a pass you hold.
+
+- Reverts with `NotTokenOwner` if you are not the current holder.
+- Reverts with `AlreadyClaimed` if the pass has already been claimed.
+- Reverts with `ClaimStillLocked` (and the seconds remaining) if 90 days have not elapsed.
+- Burns the NFT and transfers **5 SHAMA** on success.
+
+---
+
+## View Functions
+
+| Function | Returns |
+|----------|---------|
+| `isClaimable(tokenId)` | `true` if the 90-day lock has elapsed and the pass is unclaimed |
+| `timeUntilClaimable(tokenId)` | Seconds remaining until claimable; `0` if already claimable |
+| `getTokenInfo(tokenId)` | Full `TokenInfo` struct — works even after the NFT is burned |
+| `getClaimedByAddress(addr)` | All claim records for a given address |
+| `getAllClaimRecords()` | Every claim ever made, oldest first |
+| `getClaimRecordsPaged(offset, limit)` | Paginated slice of claim history |
+| `airdropStats()` | Live snapshot: total minted, total claimed, remaining passes, pending SHAMA, contract balance |
+| `airdropState()` | Current contract parameters: max supply, tokens per claim, total airdrop, claim delay, price |
+
+### TokenInfo Struct
+
+Every minted pass has a permanent `TokenInfo` record that is never deleted, even after the NFT is burned.
+
+```solidity
+struct TokenInfo {
+    uint256 tokenId;         // Unique pass ID
+    address originalMinter;  // Wallet that paid to mint
+    uint256 mintTimestamp;   // Block timestamp of mint (starts the 90-day clock)
+    bool    claimed;         // True once claimAirdrop has been executed
+    uint256 claimTimestamp;  // Block timestamp of the successful claim (0 if unclaimed)
+    address claimer;         // Address that executed the claim (may differ from originalMinter)
+}
+```
+
+---
+
+## Events
+
+| Event | Emitted When |
+|-------|-------------|
+| `RSVPMinted(minter, tokenId, timestamp, price)` | A pass is minted |
+| `AirdropClaimed(claimer, tokenId, amount, timestamp)` | A pass is claimed and burned |
+| `ShamaDeposited(from, amount)` | Admin seeds SHAMA into the contract |
+| `MintPriceUpdated(oldPrice, newPrice)` | Owner updates the mint price |
+| `EthWithdrawn(to, amount)` | Owner withdraws accumulated ETH |
+
+---
+
+## Integration
+
+### Minting a Pass
+
+```typescript
+// Single mint
+await rsvpContract.mint({ value: ethers.parseEther("0.003") });
+
+// Batch mint (e.g., 5 passes)
+const qty = 5n;
+const price = await rsvpContract.mintPrice();
+await rsvpContract.batchMint(qty, { value: price * qty });
+```
+
+### Checking & Claiming
+
+```typescript
+// Check if pass is claimable
+const ready = await rsvpContract.isClaimable(tokenId);
+
+// Check seconds remaining
+const secondsLeft = await rsvpContract.timeUntilClaimable(tokenId);
+
+// Claim (burns NFT, receives 5 SHAMA)
+await rsvpContract.claimAirdrop(tokenId);
+
+// Fetch full pass record (works after burn too)
+const info = await rsvpContract.getTokenInfo(tokenId);
+
+// Live airdrop stats
+const stats = await rsvpContract.airdropStats();
+// { totalMinted, totalClaimedOut, remaining, shamaPending, shamaBalance }
+```
+
+---
+
+## Token URI
+
+All RSVP passes share a single metadata URI hosted on IPFS:
+
+```
+ipfs://bafkreie22iownzafe3m5jmd6fvlnm3yup27blpreo2fwljfgocrqn5cryq
+```
+
+Gateway link: [View on Pinata](https://indigo-deep-swordtail-929.mypinata.cloud/ipfs/bafkreie22iownzafe3m5jmd6fvlnm3yup27blpreo2fwljfgocrqn5cryq)
+
+---
+
+## Security
+
+- **ReentrancyGuard** on `mint`, `batchMint`, and `claimAirdrop`.
+- **SafeERC20** for all SHAMA transfers.
+- SHAMA tokens held by the contract cannot be recovered by the owner for **3 years** post-deployment, protecting claimants.
+- Only excess SHAMA (above outstanding obligations to live passes) can be recovered by the owner via `recoverExcessShama`.
+- Permanent on-chain `TokenInfo` records ensure full auditability of all mints and claims, even for burned tokens.
